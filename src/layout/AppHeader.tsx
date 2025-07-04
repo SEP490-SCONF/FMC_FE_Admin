@@ -16,7 +16,6 @@ const AppHeader: React.FC = () => {
   useEffect(() => {
     UserService.getUserInformation()
       .then((data) => {
-        console.log("User info:", data);
         setUser(data);
       })
       .catch(() => setUser(null));
