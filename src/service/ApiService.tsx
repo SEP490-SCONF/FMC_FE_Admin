@@ -36,6 +36,7 @@ class ApiService {
     endpoint: string,
     options: { [key: string]: any; _retry?: boolean } = {}
   ): Promise<any> {
+     console.log("API_DOMAIN_URL:", API_DOMAIN_URL); 
     try {
       if (!endpoint) {
         throw new Error("invalid endpoint");
