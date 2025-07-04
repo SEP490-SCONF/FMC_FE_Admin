@@ -37,6 +37,10 @@ const UserService = {
     update: async (id: number, data: UpdateUserPayload | FormData): Promise<User> => {
         return await apiService.put(`/CRUDUser/${id}`, data);
     },
+    // Lấy thông tin user hiện tại
+    getUserInformation: async (): Promise<User> => {
+        return await apiService.get("/User/Information");
+    },
 };
 
 export default UserService;

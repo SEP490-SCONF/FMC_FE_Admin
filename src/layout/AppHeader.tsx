@@ -5,11 +5,22 @@ import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
+import UserService from "../service/UserService"; // Thêm dòng này
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null); // hoặc kiểu User nếu có
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+  useEffect(() => {
+    UserService.getUserInformation()
+      .then((data) => {
+        console.log("User info:", data);
+        setUser(data);
+      })
+      .catch(() => setUser(null));
+  }, []);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -164,7 +175,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          <UserDropdown user={user} /> {/* Truyền user xuống đây */}
         </div>
       </div>
     </header>
