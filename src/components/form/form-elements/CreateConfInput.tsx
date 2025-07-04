@@ -1,21 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createConference, ConferencePayload } from "../../../service/ConferenceService";
 import Input from "../input/InputField";
 import Label from "../Label";
+import { useUser } from "../../../context/UserContext";
 
 interface ConferencePayloadExtended extends ConferencePayload { }
 
-const initialState: ConferencePayloadExtended = {
+const initialState: Omit<ConferencePayloadExtended, "CreatedBy"> = {
     Title: "",
     StartDate: "",
     EndDate: "",
-    CreatedBy: 7, // Gán cứng là 7
     Status: true,
 };
 
 const CreateConfInput: React.FC = () => {
-    const [form, setForm] = useState<ConferencePayloadExtended>(initialState);
+    const { user } = useUser();
+    const [form, setForm] = useState<ConferencePayloadExtended>({
+        ...initialState,
+        CreatedBy: 0,
+    });
     const [loading, setLoading] = useState(false);
+    const [popup, setPopup] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
+        show: false,
+        message: "",
+        type: "success",
+    });
+
+    // Cập nhật CreatedBy khi user thay đổi
+    useEffect(() => {
+        if (user?.userId) {
+            setForm((prev) => ({
+                ...prev,
+                CreatedBy: user.userId,
+            }));
+        }
+    }, [user]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -32,26 +51,42 @@ const CreateConfInput: React.FC = () => {
         setLoading(true);
         try {
             await createConference({
-                Title: form.Title,
-                StartDate: form.StartDate,
-                EndDate: form.EndDate,
-                CreatedBy: 7, // Gán cứng khi submit
-                Status: form.Status,
+                ...form,
+                CreatedBy: user?.userId ?? 0,
             });
-            alert("Tạo hội nghị thành công!");
-            setForm({ ...initialState });
+
+            setPopup({ show: true, message: "Tạo hội nghị thành công!", type: "success" });
+            setForm({ ...initialState, CreatedBy: user?.userId ?? 0 });
         } catch (err) {
-            alert("Có lỗi xảy ra!");
+            setPopup({ show: true, message: "Có lỗi xảy ra!", type: "error" });
         }
         setLoading(false);
     };
 
     const handleCancel = () => {
-        setForm({ ...initialState });
+        setForm({ ...initialState, CreatedBy: user?.userId ?? 0 });
     };
 
+    // Tự động ẩn popup sau 2s
+    useEffect(() => {
+        if (popup.show) {
+            const timer = setTimeout(() => {
+                setPopup((prev) => ({ ...prev, show: false }));
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [popup.show]);
+
     return (
-        <div className="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto">
+        <div className="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto relative">
+            {popup.show && (
+                <div
+                    className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white transition-all
+            ${popup.type === "success" ? "bg-green-500" : "bg-red-500"}`}
+                >
+                    {popup.message}
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Title */}
                 <div>
@@ -91,7 +126,7 @@ const CreateConfInput: React.FC = () => {
                     <Input
                         type="text"
                         name="CreatedBy"
-                        value={"7"}
+                        value={user?.userId ?? ""}
                         disabled
                     />
                 </div>

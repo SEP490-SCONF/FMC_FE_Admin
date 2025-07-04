@@ -19,6 +19,9 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ConferenceTables from "./pages/Conference/ConferenceList";
 import AddConference from "./pages/Conference/AddNewConference";
+import TopicAdmin from "./pages/Topic/TopicListAdmin";
+// import FormElements from "./pages/Forms/FormElements";
+
 
 export default function App() {
   return (
@@ -42,6 +45,12 @@ export default function App() {
             {/* <Route path="/form-elements" element={<FormElements />} /> */}
             <Route path="/conference" element={<ConferenceTables />} />
             <Route path="/conference/add" element={<AddConference />} />
+
+            {/*Topic*/}
+            <Route path="/topic" element={<TopicAdmin />} />
+
+            {/* Form Elements */}
+            {/* <Route path="/form-elements" element={<FormElements />} /> */}
 
 
             {/* User Tables */}

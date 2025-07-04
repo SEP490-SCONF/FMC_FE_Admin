@@ -7,7 +7,7 @@ export interface GoogleLoginRequest {
 export interface GoogleLoginResponse {
   accessToken?: string;
   expiresAt?: string;
-  message?: string; // Thêm dòng này
+  message?: string;
 }
 
 export const adminGoogleLogin = async (idToken: string): Promise<GoogleLoginResponse> => {
