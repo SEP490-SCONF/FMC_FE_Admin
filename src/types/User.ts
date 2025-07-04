@@ -3,7 +3,6 @@ export interface User {
     email: string;
     name: string;
     avatarUrl: string;
-    roleId: number;
     roleName: string;
     createdAt: string;
     status: boolean;
