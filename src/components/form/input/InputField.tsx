@@ -1,7 +1,6 @@
-import type React from "react";
-import type { FC } from "react";
+import React from "react";
 
-interface InputProps {
+interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
   id?: string;
   name?: string;
@@ -18,7 +17,7 @@ interface InputProps {
   hint?: string;
 }
 
-const Input: FC<InputProps> = ({
+const Input: React.FC<InputFieldProps> = ({
   type = "text",
   id,
   name,
@@ -64,13 +63,12 @@ const Input: FC<InputProps> = ({
 
       {hint && (
         <p
-          className={`mt-1.5 text-xs ${
-            error
+          className={`mt-1.5 text-xs ${error
               ? "text-error-500"
               : success
-              ? "text-success-500"
-              : "text-gray-500"
-          }`}
+                ? "text-success-500"
+                : "text-gray-500"
+            }`}
         >
           {hint}
         </p>

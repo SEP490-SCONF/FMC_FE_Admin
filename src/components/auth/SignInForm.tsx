@@ -7,7 +7,7 @@ const SignInForm = () => {
   const handleSuccess = async (credentialResponse: any) => {
     const credential = credentialResponse.credential;
     try {
-      const res = await fetch("https://localhost:7205/api/GoogleLogin/Login", {
+      const res = await fetch("https://localhost:7166/api/GoogleLogin/Login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken: credential }),
