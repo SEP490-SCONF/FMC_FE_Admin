@@ -13,11 +13,12 @@ import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
 import BasicTables from "./pages/Tables/BasicTables";
-import FormElements from "./pages/Forms/FormElements";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import ConferenceTables from "./pages/Conference/ConferenceList";
+import AddConference from "./pages/Conference/AddNewConference";
 
 export default function App() {
   return (
@@ -34,10 +35,13 @@ export default function App() {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
 
-            {/* Forms */}
-            <Route path="/form-elements" element={<FormElements />} />
+            {/* Conference */}
+            {/* <Route path="/form-elements" element={<FormElements />} /> */}
+            <Route path="/conference" element={<ConferenceTables />} />
+            <Route path="/conference/add" element={<AddConference />} />
 
-            {/* Tables */}
+
+            {/* User Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
 
             {/* Ui Elements */}

@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -5,8 +6,24 @@ import {
   GroupIcon,
 } from "../../icons";
 import Badge from "../ui/badge/Badge";
+import UserService from "../../service/UserService";
+
+// Custom hook để lấy tổng số user
+function useUserCount() {
+  const [count, setCount] = useState<number>(0);
+
+  useEffect(() => {
+    UserService.getAll().then((users) => {
+      setCount(users.length);
+    });
+  }, []);
+
+  return count;
+}
 
 export default function EcommerceMetrics() {
+  const userCount = useUserCount();
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* <!-- Metric Item Start --> */}
@@ -21,7 +38,7 @@ export default function EcommerceMetrics() {
               Customers
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              3,782
+              {userCount.toLocaleString()}
             </h4>
           </div>
           <Badge color="success">

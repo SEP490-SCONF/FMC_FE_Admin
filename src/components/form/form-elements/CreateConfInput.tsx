@@ -1,64 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { createConference, ConferencePayload } from "../../../service/ConferenceService";
 import Input from "../input/InputField";
 import Label from "../Label";
-import MultiSelect from "../MultiSelect"; // Thêm dòng này
 
-// Đổi topicOptions sang dạng MultiSelect dùng:
-const topicOptions = [
-    { value: "AI", text: "AI" },
-    { value: "Cloud", text: "Cloud" },
-    { value: "IoT", text: "IoT" },
-    { value: "Security", text: "Security" },
-    { value: "Web", text: "Web" },
-];
-
-interface ConferencePayloadExtended extends ConferencePayload {
-    Topics?: string[];
-}
+interface ConferencePayloadExtended extends ConferencePayload { }
 
 const initialState: ConferencePayloadExtended = {
     Title: "",
     StartDate: "",
     EndDate: "",
-    CreatedBy: 0,
-    Topics: [],
+    CreatedBy: 7, // Gán cứng là 7
+    Status: true,
 };
 
 const CreateConfInput: React.FC = () => {
     const [form, setForm] = useState<ConferencePayloadExtended>(initialState);
     const [loading, setLoading] = useState(false);
 
-    // Lấy thông tin người dùng đăng nhập (ví dụ từ localStorage)
-    useEffect(() => {
-        const userStr = localStorage.getItem("user");
-        if (userStr) {
-            try {
-                const user = JSON.parse(userStr);
-                setForm((prev) => ({
-                    ...prev,
-                    CreatedBy: user?.id || user?.userId || 0,
-                }));
-            } catch { }
-        }
-    }, []);
-
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
         setForm((prev) => ({
             ...prev,
-            [name]: value,
-        }));
-    };
-
-    // Xử lý chọn nhiều topic
-    const handleTopicsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selected = Array.from(e.target.selectedOptions, option => option.value);
-        setForm((prev) => ({
-            ...prev,
-            Topics: selected,
+            [name]: name === "Status" ? value === "true" : value,
         }));
     };
 
@@ -66,17 +31,15 @@ const CreateConfInput: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            // Gửi lên server chỉ các trường bắt buộc và Topics nếu cần
             await createConference({
                 Title: form.Title,
                 StartDate: form.StartDate,
                 EndDate: form.EndDate,
-                CreatedBy: form.CreatedBy,
-                // Nếu API backend hỗ trợ Topics thì thêm dòng này:
-                // Topics: form.Topics,
+                CreatedBy: 7, // Gán cứng khi submit
+                Status: form.Status,
             });
             alert("Tạo hội nghị thành công!");
-            setForm({ ...initialState, CreatedBy: form.CreatedBy });
+            setForm({ ...initialState });
         } catch (err) {
             alert("Có lỗi xảy ra!");
         }
@@ -84,10 +47,7 @@ const CreateConfInput: React.FC = () => {
     };
 
     const handleCancel = () => {
-        setForm((prev) => ({
-            ...initialState,
-            CreatedBy: prev.CreatedBy,
-        }));
+        setForm({ ...initialState });
     };
 
     return (
@@ -102,22 +62,26 @@ const CreateConfInput: React.FC = () => {
                 {/* Start Date */}
                 <div>
                     <Label htmlFor="StartDate">Start Date</Label>
-                    <Input
+                    <input
                         type="datetime-local"
                         name="StartDate"
                         value={form.StartDate}
                         onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
+                        required
                     />
                 </div>
 
                 {/* End Date */}
                 <div>
                     <Label htmlFor="EndDate">End Date</Label>
-                    <Input
+                    <input
                         type="datetime-local"
                         name="EndDate"
                         value={form.EndDate}
                         onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
+                        required
                     />
                 </div>
 
@@ -127,25 +91,23 @@ const CreateConfInput: React.FC = () => {
                     <Input
                         type="text"
                         name="CreatedBy"
-                        value={form.CreatedBy || ""}
+                        value={"7"}
                         disabled
                     />
                 </div>
 
-                {/* Topics - Multiple Select */}
+                {/* Status */}
                 <div>
-                    <Label htmlFor="Topics">Topics</Label>
-                    <MultiSelect
-                        label=""
-                        options={topicOptions}
-                        defaultSelected={form.Topics}
-                        onChange={(values) =>
-                            setForm((prev) => ({
-                                ...prev,
-                                Topics: values,
-                            }))
-                        }
-                    />
+                    <Label htmlFor="Status">Status</Label>
+                    <select
+                        name="Status"
+                        value={form.Status ? "true" : "false"}
+                        onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
+                    >
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
                 </div>
 
                 <div className="flex gap-4 mt-4">
