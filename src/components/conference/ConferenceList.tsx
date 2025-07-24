@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { assignUserConferenceRole } from "../../service/UserConferenceRole";
 
 export interface Conference {
@@ -16,12 +16,16 @@ interface ConferenceListProps {
     conferences: Conference[];
 }
 
+const PAGE_SIZE = 6;
+
 const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
     const [showPopup, setShowPopup] = useState(false);
     const [selectedConfId, setSelectedConfId] = useState<number | null>(null);
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const handleAddOrganizer = (conferenceId: number) => {
         setSelectedConfId(conferenceId);
@@ -49,17 +53,60 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                 email,
                 conferenceId: selectedConfId!,
             });
-            setMessage("Gán organizer thành công!");
+            setMessage("Assign organizer successfully!");
         } catch (err) {
-            setMessage("Có lỗi xảy ra!");
+            setMessage("Something wrong!");
         }
         setLoading(false);
     };
 
+    // Tìm kiếm
+    const filteredConferences = useMemo(
+        () =>
+            conferences.filter(
+                (conf) =>
+                    (conf.title || "")
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    (conf.description || "")
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    (conf.location || "")
+                        .toLowerCase()
+                        .includes(search.toLowerCase())
+            ),
+        [conferences, search]
+    );
+
+    // Phân trang
+    const totalPages = Math.ceil(filteredConferences.length / PAGE_SIZE);
+    const pagedConferences = filteredConferences.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    // Reset về trang đầu khi search
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
     return (
         <>
+            <div className="mb-4 flex justify-between items-center">
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm hội nghị..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="border px-3 py-2 rounded w-full max-w-xs"
+                />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {conferences.map((conf) => (
+                {pagedConferences.map((conf) => (
                     <div
                         key={conf.conferenceId}
                         className="bg-white rounded-xl shadow p-4 flex flex-col relative"
@@ -97,16 +144,36 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                     </div>
                 ))}
             </div>
+            {/* Pagination */}
+            <div className="mt-4 flex justify-between items-center">
+                <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
+                >
+                    Previous
+                </button>
+                <span className="text-sm text-gray-700">
+                    Page {currentPage} of {totalPages}
+                </span>
+                <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 disabled:opacity-50"
+                >
+                    Next
+                </button>
+            </div>
 
             {/* Popup */}
             {showPopup && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg w-96">
-                        <h3 className="text-lg font-bold mb-4">Thêm Organizer</h3>
+                        <h3 className="text-lg font-bold mb-4">Add Organizer</h3>
                         <form onSubmit={handleSubmit}>
                             <input
                                 type="email"
-                                placeholder="Nhập email organizer"
+                                placeholder="Enter organizer email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full border rounded px-3 py-2 mb-3"
@@ -118,14 +185,14 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                                     onClick={handleClose}
                                     className="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400"
                                 >
-                                    Đóng
+                                    Close
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading}
                                     className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
                                 >
-                                    {loading ? "Đang gửi..." : "Gán"}
+                                    {loading ? "Sending..." : "Assign"}
                                 </button>
                             </div>
                         </form>

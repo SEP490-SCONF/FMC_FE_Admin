@@ -71,17 +71,17 @@ const TopicList: React.FC = () => {
     const handleAddTopic = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTopicName.trim()) {
-            setPopup({ show: true, message: "Tên topic không được để trống!", type: "error" });
+            setPopup({ show: true, message: "Please enter topic name!", type: "error" });
             return;
         }
         try {
             await createTopic({ topicName: newTopicName.trim() });
-            setPopup({ show: true, message: "Thêm topic thành công!", type: "success" });
+            setPopup({ show: true, message: "Topic add successfully!", type: "success" });
             setShowAddPopup(false);
             setNewTopicName("");
             fetchTopics();
         } catch {
-            setPopup({ show: true, message: "Thêm topic thất bại!", type: "error" });
+            setPopup({ show: true, message: "Fail to create new topic!", type: "error" });
         }
     };
 
@@ -101,7 +101,7 @@ const TopicList: React.FC = () => {
             {showAddPopup && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg w-96">
-                        <h3 className="text-lg font-semibold mb-4">Thêm Topic mới</h3>
+                        <h3 className="text-lg font-semibold mb-4">Add new Topic</h3>
                         <form onSubmit={handleAddTopic}>
                             <input
                                 type="text"
@@ -132,12 +132,12 @@ const TopicList: React.FC = () => {
             )}
 
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Danh sách Topic</h2>
+                <h2 className="text-xl font-bold">Topic List</h2>
                 <button
                     onClick={() => setShowAddPopup(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
-                    + Thêm Topic
+                    + Add topic
                 </button>
             </div>
             <div className="mb-4">
@@ -150,21 +150,21 @@ const TopicList: React.FC = () => {
                 />
             </div>
             {loading ? (
-                <div>Đang tải...</div>
+                <div>Loading...</div>
             ) : (
                 <>
                     <table className="w-full border">
                         <thead>
                             <tr className="bg-gray-100">
-                                <th className="py-2 px-2 border">STT</th>
-                                <th className="py-2 px-2 border">Tên Topic</th>
+                                <th className="py-2 px-2 border">No.</th>
+                                <th className="py-2 px-2 border">Topic</th>
                             </tr>
                         </thead>
                         <tbody>
                             {pagedTopics.length === 0 ? (
                                 <tr>
                                     <td colSpan={2} className="py-2 text-gray-500 text-center">
-                                        Không có topic nào.
+                                        No topic found.
                                     </td>
                                 </tr>
                             ) : (

@@ -20,6 +20,7 @@ import Home from "./pages/Dashboard/Home";
 import ConferenceTables from "./pages/Conference/ConferenceList";
 import AddConference from "./pages/Conference/AddNewConference";
 import TopicAdmin from "./pages/Topic/TopicListAdmin";
+import MoneyTables from "./pages/PaymentList/PaymentInfo";
 // import FormElements from "./pages/Forms/FormElements";
 
 
@@ -55,6 +56,9 @@ export default function App() {
 
             {/* User Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
+
+            {/* Money Tables */}
+            <Route path="/money-tables" element={<MoneyTables />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

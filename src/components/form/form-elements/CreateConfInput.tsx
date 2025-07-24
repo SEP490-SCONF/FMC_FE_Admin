@@ -55,10 +55,10 @@ const CreateConfInput: React.FC = () => {
                 CreatedBy: user?.userId ?? 0,
             });
 
-            setPopup({ show: true, message: "Tạo hội nghị thành công!", type: "success" });
+            setPopup({ show: true, message: "Conference Create Successfully!", type: "success" });
             setForm({ ...initialState, CreatedBy: user?.userId ?? 0 });
         } catch (err) {
-            setPopup({ show: true, message: "Có lỗi xảy ra!", type: "error" });
+            setPopup({ show: true, message: "Can not create conference!", type: "error" });
         }
         setLoading(false);
     };

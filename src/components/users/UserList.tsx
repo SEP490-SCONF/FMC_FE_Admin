@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '../ui/table/index';
-import UserService, { User } from '../../service/UserService'; // Đảm bảo đường dẫn đúng
+import UserService, { User } from '../../service/UserService';
+
+const PAGE_SIZE = 7;
 
 const UserListing: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
@@ -10,20 +12,19 @@ const UserListing: React.FC = () => {
     const [editName, setEditName] = useState('');
     const [editRoleId, setEditRoleId] = useState<number>(2);
     const [editStatus, setEditStatus] = useState<boolean>(true);
+    const [search, setSearch] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Fetch users từ UserService
     const fetchUsers = async () => {
         try {
             const data = await UserService.getAll();
-            console.log("Dữ liệu trả về từ API:", data); // In ra dữ liệu nhận được
             setUsers(Array.isArray(data) ? data : []);
         } catch (error) {
-            console.error('Error fetching users:', error);
-            setUsers([]); // Đảm bảo luôn là array khi lỗi
+            setUsers([]);
         }
     };
 
-    // Gọi hàm fetchUsers khi component được mount
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -31,13 +32,12 @@ const UserListing: React.FC = () => {
     const handleAddUser = async () => {
         if (newUserEmail) {
             try {
-                // Gọi API chỉ với email
                 const addedUser = await UserService.findByEmail(newUserEmail);
                 setUsers([...users, addedUser]);
                 setIsPopupOpen(false);
                 setNewUserEmail('');
             } catch (error) {
-                console.error('Error adding user:', error);
+                // handle error
             }
         }
     };
@@ -56,30 +56,63 @@ const UserListing: React.FC = () => {
             formData.append("Name", editName);
             formData.append("RoleId", editRoleId.toString());
             formData.append("Status", editStatus ? "true" : "false");
-            // Nếu muốn update AvatarUrl thì thêm dòng dưới (nếu có input cho avatar)
-            // formData.append("AvatarUrl", avatarUrl);
-
             await UserService.update(selectedUser.userId, formData);
             fetchUsers();
             setSelectedUser(null);
         } catch (error) {
-            console.error("Update failed", error);
+            // handle error
         }
+    };
+
+    // Tìm kiếm
+    const filteredUsers = useMemo(
+        () =>
+            users.filter(
+                (user) =>
+                    (user.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                    (user.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                    (user.roleName ?? "").toLowerCase().includes(search.toLowerCase())
+            ),
+        [users, search]
+    );
+
+    // Phân trang
+    const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
+    const pagedUsers = filteredUsers.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
+    // Reset về trang đầu khi search
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
     };
 
     return (
         <div className="container mx-auto p-4">
             <h2 className="text-xl font-semibold mb-4">User List</h2>
 
-            <button
-                onClick={() => setIsPopupOpen(true)}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-                Add User
-            </button>
+            <div className="flex justify-between items-center mb-4">
+                <button
+                    onClick={() => setIsPopupOpen(true)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Add User
+                </button>
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm người dùng..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="border px-3 py-2 rounded w-64"
+                />
+            </div>
 
             <div className="mt-6">
-                {/* Sử dụng Table component để hiển thị danh sách người dùng */}
                 <Table className="min-w-full">
                     <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                         <TableRow>
@@ -101,7 +134,7 @@ const UserListing: React.FC = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                        {users.map((user) => (
+                        {pagedUsers.map((user) => (
                             <TableRow key={user.userId} onClick={() => openEditPopup(user)} className="cursor-pointer">
                                 <TableCell className="px-5 py-4 sm:px-6 text-start">
                                     <div className="flex items-center gap-3">
@@ -145,13 +178,29 @@ const UserListing: React.FC = () => {
                 </Table>
             </div>
 
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-6 gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => handlePageChange(i + 1)}
+                            className={`px-3 py-1 rounded border ${currentPage === i + 1
+                                ? "bg-blue-600 text-white"
+                                : "bg-white text-blue-600"
+                                }`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {/* Popup Add User */}
             {isPopupOpen && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg w-96">
                         <h3 className="text-xl font-semibold mb-4">Add New User</h3>
-
-                        {/* Chỉ còn input email */}
                         <div className="mb-4">
                             <label className="block text-sm font-medium">Email</label>
                             <input
@@ -162,7 +211,6 @@ const UserListing: React.FC = () => {
                                 placeholder="Enter email"
                             />
                         </div>
-
                         <div className="flex justify-end space-x-2">
                             <button
                                 onClick={() => setIsPopupOpen(false)}
@@ -177,7 +225,6 @@ const UserListing: React.FC = () => {
                                 Add
                             </button>
                         </div>
-
                         <button
                             onClick={() => setIsPopupOpen(false)}
                             className="absolute top-2 right-2 text-xl text-gray-600"
