@@ -3,7 +3,7 @@ import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
 import UserListing from "../../components/users/UserList";
 
-export default function BasicTables() {
+export default function UserManagement() {
   return (
     <>
       <PageMeta
