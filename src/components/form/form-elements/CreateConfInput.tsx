@@ -26,7 +26,7 @@ const CreateConfInput: React.FC = () => {
         type: "success",
     });
 
-    // Cập nhật CreatedBy khi user thay đổi
+    // Update CreatedBy when the user changes
     useEffect(() => {
         if (user?.userId) {
             setForm((prev) => ({
@@ -55,10 +55,10 @@ const CreateConfInput: React.FC = () => {
                 CreatedBy: user?.userId ?? 0,
             });
 
-            setPopup({ show: true, message: "Conference Create Successfully!", type: "success" });
+            setPopup({ show: true, message: "Conference created successfully!", type: "success" });
             setForm({ ...initialState, CreatedBy: user?.userId ?? 0 });
         } catch (err) {
-            setPopup({ show: true, message: "Can not create conference!", type: "error" });
+            setPopup({ show: true, message: "Unable to create conference!", type: "error" });
         }
         setLoading(false);
     };
@@ -67,7 +67,7 @@ const CreateConfInput: React.FC = () => {
         setForm({ ...initialState, CreatedBy: user?.userId ?? 0 });
     };
 
-    // Tự động ẩn popup sau 2s
+    // Auto-hide popup after 2 seconds
     useEffect(() => {
         if (popup.show) {
             const timer = setTimeout(() => {
@@ -120,7 +120,7 @@ const CreateConfInput: React.FC = () => {
                     />
                 </div>
 
-                {/* Created By (ẩn input, chỉ hiển thị thông tin) */}
+                {/* Created By (hidden input, only displays information) */}
                 <div>
                     <Label htmlFor="CreatedBy">Created By</Label>
                     <Input
@@ -151,7 +151,7 @@ const CreateConfInput: React.FC = () => {
                         disabled={loading}
                         className="bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-2"
                     >
-                        {loading ? "Đang gửi..." : "Tạo hội nghị"}
+                        {loading ? "Submitting..." : "Create Conference"}
                     </button>
                     <button
                         type="button"

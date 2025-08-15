@@ -12,8 +12,9 @@ import Buttons from "./pages/UiElements/Buttons";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 import Calendar from "./pages/Calendar";
-import UserManagement from "./pages/Tables/UserManagement";
+// import BasicTables from "./pages/Tables/BasicTables";
 import Blank from "./pages/Blank";
+import UserManagement from "./pages/Tables/UserManagement";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
@@ -55,6 +56,7 @@ export default function App() {
 
 
             {/* User Tables */}
+            {/* <Route path="/basic-tables" element={<BasicTables />} /> */}
             <Route path="/user-management" element={<UserManagement />} />
 
             {/* Money Tables */}

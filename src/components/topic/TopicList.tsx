@@ -33,17 +33,17 @@ const TopicList: React.FC = () => {
             const data = await getAllTopics();
             setTopics(data);
         } catch (error) {
-            setPopup({ show: true, message: "Lỗi khi tải danh sách topic!", type: "error" });
+            setPopup({ show: true, message: "Error while loading topic list!", type: "error" });
         }
         setLoading(false);
     };
 
-    // Lọc theo search
+    // Filter by search term
     const filteredTopics = topics.filter((topic) =>
         topic.topicName.toLowerCase().includes(search.toLowerCase())
     );
 
-    // Phân trang
+    // Pagination
     const totalPages = Math.ceil(filteredTopics.length / PAGE_SIZE);
     const pagedTopics = filteredTopics.slice(
         (currentPage - 1) * PAGE_SIZE,
@@ -52,14 +52,14 @@ const TopicList: React.FC = () => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
-        setCurrentPage(1); // Reset về trang đầu khi search
+        setCurrentPage(1); // Reset to first page when searching
     };
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
 
-    // Popup auto close
+    // Auto-close popup
     useEffect(() => {
         if (popup.show) {
             const timer = setTimeout(() => setPopup((p) => ({ ...p, show: false })), 2000);
@@ -67,21 +67,21 @@ const TopicList: React.FC = () => {
         }
     }, [popup.show]);
 
-    // Add topic handlers
+    // Add topic
     const handleAddTopic = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTopicName.trim()) {
-            setPopup({ show: true, message: "Please enter topic name!", type: "error" });
+            setPopup({ show: true, message: "Please enter a topic name!", type: "error" });
             return;
         }
         try {
             await createTopic({ topicName: newTopicName.trim() });
-            setPopup({ show: true, message: "Topic add successfully!", type: "success" });
+            setPopup({ show: true, message: "Topic added successfully!", type: "success" });
             setShowAddPopup(false);
             setNewTopicName("");
             fetchTopics();
         } catch {
-            setPopup({ show: true, message: "Fail to create new topic!", type: "error" });
+            setPopup({ show: true, message: "Failed to create new topic!", type: "error" });
         }
     };
 
@@ -101,13 +101,13 @@ const TopicList: React.FC = () => {
             {showAddPopup && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg w-96">
-                        <h3 className="text-lg font-semibold mb-4">Add new Topic</h3>
+                        <h3 className="text-lg font-semibold mb-4">Add New Topic</h3>
                         <form onSubmit={handleAddTopic}>
                             <input
                                 type="text"
                                 value={newTopicName}
                                 onChange={(e) => setNewTopicName(e.target.value)}
-                                placeholder="Nhập tên topic"
+                                placeholder="Enter topic name"
                                 className="border px-3 py-2 rounded w-full mb-4"
                                 autoFocus
                             />
@@ -117,13 +117,13 @@ const TopicList: React.FC = () => {
                                     onClick={() => { setShowAddPopup(false); setNewTopicName(""); }}
                                     className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
                                 >
-                                    Hủy
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                                 >
-                                    Lưu
+                                    Save
                                 </button>
                             </div>
                         </form>
@@ -137,13 +137,13 @@ const TopicList: React.FC = () => {
                     onClick={() => setShowAddPopup(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
-                    + Add topic
+                    + Add Topic
                 </button>
             </div>
             <div className="mb-4">
                 <input
                     type="text"
-                    placeholder="Tìm kiếm topic..."
+                    placeholder="Search topics..."
                     value={search}
                     onChange={handleSearchChange}
                     className="border px-3 py-2 rounded w-full"
@@ -164,7 +164,7 @@ const TopicList: React.FC = () => {
                             {pagedTopics.length === 0 ? (
                                 <tr>
                                     <td colSpan={2} className="py-2 text-gray-500 text-center">
-                                        No topic found.
+                                        No topics found.
                                     </td>
                                 </tr>
                             ) : (

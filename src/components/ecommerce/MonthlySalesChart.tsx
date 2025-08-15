@@ -3,9 +3,29 @@ import { ApexOptions } from "apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { PaymentService, Payment } from "../../service/PaymentService";
 
 export default function MonthlySalesChart() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [monthlyData, setMonthlyData] = useState<number[]>(
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  );
+
+  useEffect(() => {
+    async function fetchPayments() {
+      const payments: Payment[] = await PaymentService.getAll();
+      // Tính tổng amount theo từng tháng
+      const monthly = Array(12).fill(0);
+      payments.forEach((p) => {
+        const month = new Date(p.createdAt).getMonth(); // 0-11
+        monthly[month] += p.amount;
+      });
+      setMonthlyData(monthly);
+    }
+    fetchPayments();
+  }, []);
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -81,17 +101,17 @@ export default function MonthlySalesChart() {
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => val.toLocaleString("vi-VN"),
       },
     },
   };
+
   const series = [
     {
       name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      data: monthlyData,
     },
   ];
-  const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);

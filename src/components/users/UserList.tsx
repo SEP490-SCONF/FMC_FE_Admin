@@ -117,13 +117,13 @@ const UserListing: React.FC = () => {
                     <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                         <TableRow>
                             <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                UserName
+                                User Name
                             </TableCell>
                             <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Email
                             </TableCell>
                             <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                                Role 
+                                Role Name
                             </TableCell>
                             <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
                                 Created At
@@ -241,7 +241,7 @@ const UserListing: React.FC = () => {
                     <div className="bg-white p-6 rounded shadow-lg w-96">
                         <h3 className="text-xl font-semibold mb-4">Edit User</h3>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium">UserName</label>
+                            <label className="block text-sm font-medium">User Name</label>
                             <input
                                 type="text"
                                 value={editName}
@@ -250,7 +250,7 @@ const UserListing: React.FC = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium">Role</label>
+                            <label className="block text-sm font-medium">Role Name</label>
                             <select
                                 value={editRoleId}
                                 onChange={e => setEditRoleId(Number(e.target.value))}

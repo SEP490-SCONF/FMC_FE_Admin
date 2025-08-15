@@ -14,7 +14,7 @@ interface Payment {
     regId: number | null;
     amount: number;
     currency: string;
-    payStatus: "Pending" | "Cancel" | "Success";
+    payStatus: "Pending" | "Cancelled" | "Completed";
     payOsOrderCode: string;
     payOsCheckoutUrl: string;
     paidAt: string | null;
@@ -31,9 +31,9 @@ const statusColor = (status: string) => {
     switch (status) {
         case "Pending":
             return "bg-yellow-100 text-yellow-800";
-        case "Cancel":
+        case "Cancelled":
             return "bg-red-100 text-red-700";
-        case "Success":
+        case "Completed":
             return "bg-green-100 text-green-700";
         default:
             return "";
@@ -44,7 +44,7 @@ const PAGE_SIZE = 7;
 
 const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Cancel' | 'Success'>('All');
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Cancelled' | 'Completed'>('All');
     const [currentPage, setCurrentPage] = useState(1);
 
     // Tìm kiếm + filter status
@@ -93,13 +93,13 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                 />
                 <select
                     value={statusFilter}
-                    onChange={e => setStatusFilter(e.target.value as 'All' | 'Pending' | 'Cancel' | 'Success')}
+                    onChange={e => setStatusFilter(e.target.value as 'All' | 'Pending' | 'Cancelled' | 'Completed')}
                     className="border px-3 py-2 rounded"
                 >
                     <option value="All">All</option>
                     <option value="Pending">Pending</option>
-                    <option value="Cancel">Cancel</option>
-                    <option value="Success">Success</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Completed">Completed</option>
                 </select>
             </div>
             <div className="bg-white rounded shadow overflow-x-auto">

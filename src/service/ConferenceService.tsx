@@ -13,21 +13,21 @@ export interface ConferencePayload {
     BannerImage?: File | null;
 }
 
-function formatDateForDB(dateStr: string) {
-    if (!dateStr) return "";
-    // dateStr dạng: "2025-08-10T00:00"
-    const date = new Date(dateStr);
-    // yyyy-MM-dd HH:mm:ss.SSS
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const yyyy = date.getFullYear();
-    const MM = pad(date.getMonth() + 1);
-    const dd = pad(date.getDate());
-    const HH = pad(date.getHours());
-    const mm = pad(date.getMinutes());
-    const ss = pad(date.getSeconds());
-    const SSS = date.getMilliseconds().toString().padStart(3, "0");
-    return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}.${SSS}`;
-}
+// function formatDateForDB(dateStr: string) {
+//     if (!dateStr) return "";
+//     // dateStr dạng: "2025-08-10T00:00"
+//     const date = new Date(dateStr);
+//     // yyyy-MM-dd HH:mm:ss.SSS
+//     const pad = (n: number) => n.toString().padStart(2, "0");
+//     const yyyy = date.getFullYear();
+//     const MM = pad(date.getMonth() + 1);
+//     const dd = pad(date.getDate());
+//     const HH = pad(date.getHours());
+//     const mm = pad(date.getMinutes());
+//     const ss = pad(date.getSeconds());
+//     const SSS = date.getMilliseconds().toString().padStart(3, "0");
+//     return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}.${SSS}`;
+// }
 
 export const createConference = async (payload: ConferencePayload) => {
     const formData = new FormData();

@@ -9,14 +9,12 @@ import {
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -61,7 +59,7 @@ const navItems: NavItem[] = [
 
   },
   {
-    name: "User Managemenent",
+    name: "User Management",
     icon: <TableIcon />,
     subItems: [{ name: "User List", path: "/user-management", pro: false }],
   },

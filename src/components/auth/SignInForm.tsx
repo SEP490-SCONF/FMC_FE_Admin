@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { adminGoogleLogin } from "../../service/AuthenService";
 import Alert from "../ui/alert/Alert";

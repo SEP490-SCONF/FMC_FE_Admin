@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ComponentCard from "../../components/common/ComponentCard";
 import PageMeta from "../../components/common/PageMeta";
@@ -29,7 +29,7 @@ export default function MoneyTables() {
                     ) : (
                         <PaymentList payments={payments.map(payment => ({
                             ...payment,
-                            payStatus: payment.payStatus as "Pending" | "Cancel" | "Success"
+                            payStatus: payment.payStatus as "Pending" | "Cancelled" | "Completed",
                         }))} />
                     )}
                 </ComponentCard>
