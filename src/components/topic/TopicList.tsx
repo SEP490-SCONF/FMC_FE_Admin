@@ -57,10 +57,6 @@ const TopicList: React.FC = () => {
         currentPage * PAGE_SIZE
     );
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
-        setCurrentPage(1);
-    };
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -149,17 +145,34 @@ const TopicList: React.FC = () => {
             </div>
 
             {/* Search + Filter */}
-            <div className="flex gap-3 mb-4">
+            <div className="flex gap-3 mb-4 items-center">
+                {/* Search */}
+                <label htmlFor="search" className="sr-only">
+                    Search conferences
+                </label>
                 <input
+                    id="search"
                     type="text"
                     placeholder="Search..."
                     value={search}
-                    onChange={handleSearchChange}
-                    className="border px-3 py-2 rounded w-64" // nhỏ lại
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setCurrentPage(1); // reset page khi search
+                    }}
+                    className="border px-3 py-2 rounded w-64"
                 />
+
+                {/* Status Filter */}
+                <label htmlFor="statusFilter" className="sr-only">
+                    Filter by status
+                </label>
                 <select
+                    id="statusFilter"
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
+                    onChange={(e) => {
+                        setStatusFilter(e.target.value as "all" | "active" | "inactive");
+                        setCurrentPage(1); // reset page khi đổi filter
+                    }}
                     className="border px-3 py-2 rounded"
                 >
                     <option value="all">All</option>
@@ -167,6 +180,7 @@ const TopicList: React.FC = () => {
                     <option value="inactive">Inactive</option>
                 </select>
             </div>
+
 
             {loading ? (
                 <div>Loading...</div>

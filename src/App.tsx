@@ -36,7 +36,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index element={<Home />} />
             <Route index path="/home" element={<Home />} />
 
             {/* Others Page */}

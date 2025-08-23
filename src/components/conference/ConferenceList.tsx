@@ -104,16 +104,17 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                 break;
             case "newest":
                 list = [...list].sort((a, b) => {
-                    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-                    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-                    return dateB - dateA;
+                    if (!a.startDate) return 1;   // a không có ngày → xuống cuối
+                    if (!b.startDate) return -1;  // b không có ngày → xuống cuối
+                    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
                 });
                 break;
+
             case "oldest":
                 list = [...list].sort((a, b) => {
-                    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
-                    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
-                    return dateA - dateB;
+                    if (!a.startDate) return 1;   // không có ngày → xuống cuối
+                    if (!b.startDate) return -1;
+                    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
                 });
                 break;
             default:
