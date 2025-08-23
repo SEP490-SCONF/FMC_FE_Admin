@@ -1,6 +1,6 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import ChartTab from "../common/ChartTab";
+// import ChartTab from "../common/ChartTab";
 import { useEffect, useState } from "react";
 import { PaymentService, Payment } from "../../service/PaymentService";
 
@@ -92,7 +92,7 @@ export default function StatisticsChart() {
           </p>
         </div>
         <div className="flex items-start w-full gap-3 sm:justify-end">
-          <ChartTab />
+          {/* <ChartTab /> */}
         </div>
       </div>
 

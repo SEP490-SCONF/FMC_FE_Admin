@@ -31,11 +31,12 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          <Route index path="/" element={<SignIn />} />
+
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
+            <Route index path="/" element={<Home />} />
             <Route index path="/home" element={<Home />} />
 
             {/* Others Page */}

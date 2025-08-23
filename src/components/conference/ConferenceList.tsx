@@ -28,6 +28,11 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [specificTitle, setSpecificTitle] = useState("");
 
+    // 🆕 thay sortOrder + showUpcomingOnly bằng 1 filter duy nhất
+    const [filterOption, setFilterOption] = useState<
+        "default" | "newest" | "oldest" | "upcoming" | "ongoing"
+    >("default");
+
     const handleAddOrganizer = (conferenceId: number) => {
         setSelectedConfId(conferenceId);
         setShowPopup(true);
@@ -63,9 +68,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                 res === "Người dùng đã được gán vai trò này trong hội thảo." ||
                 res?.data === "Người dùng đã được gán vai trò này trong hội thảo."
             ) {
-                setMessage(
-                    "This user has already been assigned this role in the conference."
-                );
+                setMessage("This user has already been assigned this role in the conference.");
             } else {
                 setMessage("Organizer assigned successfully!");
             }
@@ -75,19 +78,50 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
         setLoading(false);
     };
 
-    // Search filter
-    const filteredConferences = useMemo(
-        () =>
-            conferences.filter(
-                (conf) =>
-                    (conf.title || "").toLowerCase().includes(search.toLowerCase()) ||
-                    (conf.description || "")
-                        .toLowerCase()
-                        .includes(search.toLowerCase()) ||
-                    (conf.location || "").toLowerCase().includes(search.toLowerCase())
-            ),
-        [conferences, search]
-    );
+    // Search + filter + sort
+    const filteredConferences = useMemo(() => {
+        let list = conferences.filter(
+            (conf) =>
+                (conf.title || "").toLowerCase().includes(search.toLowerCase()) ||
+                (conf.description || "").toLowerCase().includes(search.toLowerCase()) ||
+                (conf.location || "").toLowerCase().includes(search.toLowerCase())
+        );
+
+        const now = new Date();
+
+        switch (filterOption) {
+            case "upcoming":
+                list = list.filter((conf) => conf.startDate && new Date(conf.startDate) > now);
+                break;
+            case "ongoing":
+                list = list.filter(
+                    (conf) =>
+                        conf.startDate &&
+                        conf.endDate &&
+                        new Date(conf.startDate) <= now &&
+                        new Date(conf.endDate) >= now
+                );
+                break;
+            case "newest":
+                list = [...list].sort((a, b) => {
+                    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                    return dateB - dateA;
+                });
+                break;
+            case "oldest":
+                list = [...list].sort((a, b) => {
+                    const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                    const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                    return dateA - dateB;
+                });
+                break;
+            default:
+                break;
+        }
+
+        return list;
+    }, [conferences, search, filterOption]);
 
     // Pagination
     const totalPages = Math.ceil(filteredConferences.length / PAGE_SIZE);
@@ -100,14 +134,15 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
         setCurrentPage(page);
     };
 
-    // Reset to first page when search changes
+    // Reset page khi filter/search thay đổi
     React.useEffect(() => {
         setCurrentPage(1);
-    }, [search]);
+    }, [search, filterOption]);
 
     return (
         <>
-            <div className="mb-4 flex justify-between items-center">
+            {/* Search + Filters */}
+            <div className="mb-4 flex flex-wrap gap-3 items-center justify-between">
                 <input
                     type="text"
                     placeholder="Search conferences..."
@@ -115,7 +150,30 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                     onChange={(e) => setSearch(e.target.value)}
                     className="border px-3 py-2 rounded w-full max-w-xs"
                 />
+
+                <select
+                    value={filterOption}
+                    onChange={(e) =>
+                        setFilterOption(
+                            e.target.value as
+                            | "default"
+                            | "newest"
+                            | "oldest"
+                            | "upcoming"
+                            | "ongoing"
+                        )
+                    }
+                    className="border px-3 py-2 rounded"
+                >
+                    <option value="default">Default</option>
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="ongoing">Ongoing</option>
+                </select>
             </div>
+
+            {/* Conference Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {pagedConferences.map((conf) => (
                     <div
@@ -127,28 +185,19 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                             alt={conf.title || "No title"}
                             className="h-40 w-full object-cover rounded-lg mb-4"
                         />
-                        <h2 className="text-lg font-bold mb-2">
-                            {conf.title || "No title"}
-                        </h2>
-                        <p className="text-gray-600 mb-2">
-                            {conf.description || "No description"}
-                        </p>
+                        <h2 className="text-lg font-bold mb-2">{conf.title || "No title"}</h2>
+                        <p className="text-gray-600 mb-2">{conf.description || "No description"}</p>
                         <div className="text-sm text-gray-500 mb-1">
-                            <span className="font-semibold">Location:</span>{" "}
-                            {conf.location || "N/A"}
+                            <span className="font-semibold">Location:</span> {conf.location || "N/A"}
                         </div>
                         <div className="text-sm text-gray-500 mb-1">
                             <span className="font-semibold">Time:</span>{" "}
-                            {conf.startDate
-                                ? new Date(conf.startDate).toLocaleString()
-                                : "N/A"}{" "}
-                            - {conf.endDate ? new Date(conf.endDate).toLocaleString() : "N/A"}
+                            {conf.startDate ? new Date(conf.startDate).toLocaleDateString("vi-VN") : "N/A"} -{" "}
+                            {conf.endDate ? new Date(conf.endDate).toLocaleDateString("vi-VN") : "N/A"}
                         </div>
                         <div className="mt-auto flex justify-between items-end">
                             <span
-                                className={`inline-block px-2 py-1 rounded text-xs font-semibold ${conf.status
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-red-100 text-red-700"
+                                className={`inline-block px-2 py-1 rounded text-xs font-semibold ${conf.status ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                                     }`}
                             >
                                 {conf.status === null
@@ -168,6 +217,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                     </div>
                 ))}
             </div>
+
             {/* Pagination */}
             <div className="mt-4 flex justify-between items-center">
                 <button
@@ -189,7 +239,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                 </button>
             </div>
 
-            {/* Popup */}
+            {/* Popup giữ nguyên */}
             {showPopup && (
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded shadow-lg w-96">
@@ -231,9 +281,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                             </div>
                         </form>
                         {message && (
-                            <div className="mt-2 text-sm text-center text-green-600">
-                                {message}
-                            </div>
+                            <div className="mt-2 text-sm text-center text-green-600">{message}</div>
                         )}
                     </div>
                 </div>

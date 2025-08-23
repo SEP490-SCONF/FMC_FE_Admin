@@ -4,6 +4,7 @@ import { getAllTopics, createTopic } from "../../service/Topic";
 interface Topic {
     topicId: number;
     topicName: string;
+    status: boolean; // thêm status
 }
 
 const PAGE_SIZE = 5;
@@ -12,6 +13,7 @@ const TopicList: React.FC = () => {
     const [topics, setTopics] = useState<Topic[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
     const [currentPage, setCurrentPage] = useState(1);
 
     // Popup state
@@ -38,10 +40,15 @@ const TopicList: React.FC = () => {
         setLoading(false);
     };
 
-    // Filter by search term
-    const filteredTopics = topics.filter((topic) =>
-        topic.topicName.toLowerCase().includes(search.toLowerCase())
-    );
+    // Filter by search term + status
+    const filteredTopics = topics.filter((topic) => {
+        const matchSearch = topic.topicName.toLowerCase().includes(search.toLowerCase());
+        const matchStatus =
+            statusFilter === "all" ||
+            (statusFilter === "active" && topic.status) ||
+            (statusFilter === "inactive" && !topic.status);
+        return matchSearch && matchStatus;
+    });
 
     // Pagination
     const totalPages = Math.ceil(filteredTopics.length / PAGE_SIZE);
@@ -52,7 +59,7 @@ const TopicList: React.FC = () => {
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
-        setCurrentPage(1); // Reset to first page when searching
+        setCurrentPage(1);
     };
 
     const handlePageChange = (page: number) => {
@@ -86,7 +93,7 @@ const TopicList: React.FC = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto bg-white rounded shadow p-6 mt-8 relative">
+        <div className="max-w-3xl mx-auto bg-white rounded shadow p-6 mt-8 relative">
             {/* Popup notification */}
             {popup.show && (
                 <div
@@ -140,15 +147,27 @@ const TopicList: React.FC = () => {
                     + Add Topic
                 </button>
             </div>
-            <div className="mb-4">
+
+            {/* Search + Filter */}
+            <div className="flex gap-3 mb-4">
                 <input
                     type="text"
-                    placeholder="Search topics..."
+                    placeholder="Search..."
                     value={search}
                     onChange={handleSearchChange}
-                    className="border px-3 py-2 rounded w-full"
+                    className="border px-3 py-2 rounded w-64" // nhỏ lại
                 />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
+                    className="border px-3 py-2 rounded"
+                >
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
             </div>
+
             {loading ? (
                 <div>Loading...</div>
             ) : (
@@ -158,12 +177,13 @@ const TopicList: React.FC = () => {
                             <tr className="bg-gray-100">
                                 <th className="py-2 px-2 border">No.</th>
                                 <th className="py-2 px-2 border">Topic</th>
+                                <th className="py-2 px-2 border">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {pagedTopics.length === 0 ? (
                                 <tr>
-                                    <td colSpan={2} className="py-2 text-gray-500 text-center">
+                                    <td colSpan={3} className="py-2 text-gray-500 text-center">
                                         No topics found.
                                     </td>
                                 </tr>
@@ -174,11 +194,23 @@ const TopicList: React.FC = () => {
                                             {(currentPage - 1) * PAGE_SIZE + idx + 1}
                                         </td>
                                         <td className="py-2 px-2 border">{topic.topicName}</td>
+                                        <td className="py-2 px-2 border text-center">
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-xs font-semibold
+                                                    ${topic.status
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-600"
+                                                    }`}
+                                            >
+                                                {topic.status ? "Active" : "Inactive"}
+                                            </span>
+                                        </td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
+
                     {/* Pagination */}
                     {totalPages > 1 && (
                         <div className="flex justify-center mt-4 gap-2">

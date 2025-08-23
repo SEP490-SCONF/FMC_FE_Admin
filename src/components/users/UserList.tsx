@@ -15,6 +15,10 @@ const UserListing: React.FC = () => {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
+    // ✅ THÊM MỚI: filter status & role
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
+    const [roleFilter, setRoleFilter] = useState<'All' | 'Admin' | 'Member'>('All');
+
     // Fetch users từ UserService
     const fetchUsers = async () => {
         try {
@@ -64,17 +68,26 @@ const UserListing: React.FC = () => {
         }
     };
 
-    // Tìm kiếm
-    const filteredUsers = useMemo(
-        () =>
-            users.filter(
-                (user) =>
-                    (user.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
-                    (user.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
-                    (user.roleName ?? "").toLowerCase().includes(search.toLowerCase())
-            ),
-        [users, search]
-    );
+    // Tìm kiếm + filter (THÊM status & role)
+    const filteredUsers = useMemo(() => {
+        return users.filter((user) => {
+            const matchesSearch =
+                (user.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                (user.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                (user.roleName ?? "").toLowerCase().includes(search.toLowerCase());
+
+            const matchesStatus =
+                statusFilter === 'All' ||
+                (statusFilter === 'Active' && user.status) ||
+                (statusFilter === 'Inactive' && !user.status);
+
+            const matchesRole =
+                roleFilter === 'All' ||
+                (user.roleName ?? '').toLowerCase() === roleFilter.toLowerCase();
+
+            return matchesSearch && matchesStatus && matchesRole;
+        });
+    }, [users, search, statusFilter, roleFilter]);
 
     // Phân trang
     const totalPages = Math.ceil(filteredUsers.length / PAGE_SIZE);
@@ -83,10 +96,10 @@ const UserListing: React.FC = () => {
         currentPage * PAGE_SIZE
     );
 
-    // Reset về trang đầu khi search
+    // Reset về trang đầu khi search/filter đổi
     useEffect(() => {
         setCurrentPage(1);
-    }, [search]);
+    }, [search, statusFilter, roleFilter]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -96,6 +109,7 @@ const UserListing: React.FC = () => {
         <div className="container mx-auto p-4">
             <h2 className="text-xl font-semibold mb-4">User List</h2>
 
+            {/* KHỐI CONTROL: giữ nút Add User, thêm 2 filter vào cùng cụm với search */}
             <div className="flex justify-between items-center mb-4">
                 <button
                     onClick={() => setIsPopupOpen(true)}
@@ -103,15 +117,41 @@ const UserListing: React.FC = () => {
                 >
                     Add User
                 </button>
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm người dùng..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="border px-3 py-2 rounded w-64"
-                />
+
+                <div className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm người dùng..."
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                        className="border px-3 py-2 rounded w-64"
+                    />
+
+                    {/* ✅ Filter Status */}
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Inactive')}
+                        className="border px-3 py-2 rounded"
+                    >
+                        <option value="All">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+
+                    {/* ✅ Filter Role */}
+                    <select
+                        value={roleFilter}
+                        onChange={(e) => setRoleFilter(e.target.value as 'All' | 'Admin' | 'Member')}
+                        className="border px-3 py-2 rounded"
+                    >
+                        <option value="All">All Roles</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Member">Member</option>
+                    </select>
+                </div>
             </div>
 
+            {/* BẢNG: giữ NGUYÊN cấu trúc */}
             <div className="mt-6">
                 <Table className="min-w-full">
                     <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
@@ -164,9 +204,7 @@ const UserListing: React.FC = () => {
                                 </TableCell>
                                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                                     <span
-                                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${user.status
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-700"
+                                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${user.status ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                                             }`}
                                     >
                                         {user.status ? "Active" : "Inactive"}
@@ -279,7 +317,7 @@ const UserListing: React.FC = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleUpdateUser} // Đảm bảo gọi hàm update user
+                                onClick={handleUpdateUser}
                                 className="px-4 py-2 bg-blue-500 text-white rounded"
                             >
                                 Save

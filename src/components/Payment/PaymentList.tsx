@@ -44,25 +44,65 @@ const PAGE_SIZE = 7;
 
 const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
     const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Cancelled' | 'Completed'>('All');
+    const [statusFilter, setStatusFilter] =
+        useState<'All' | 'Pending' | 'Cancelled' | 'Completed'>('All');
+
+    // GIỮ NGUYÊN: sort Date + Amount
+    const [sortDate, setSortDate] = useState<'Default' | 'Newest' | 'Oldest'>('Default');
+    const [sortAmount, setSortAmount] = useState<'Default' | 'Asc' | 'Desc'>('Default');
+
+    // GIỮ purpose filter
+    const [purposeFilter, setPurposeFilter] =
+        useState<'All' | 'Publish' | 'Fee' | 'Review' | 'Other'>('All');
+
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Tìm kiếm + filter status
-    const filteredPayments = useMemo(
-        () =>
-            payments.filter(
-                (p) =>
-                    (statusFilter === 'All' || p.payStatus === statusFilter) &&
-                    (
-                        p.payId.toString().includes(search) ||
-                        p.userId.toString().includes(search) ||
-                        (p.purpose ?? "").toLowerCase().includes(search.toLowerCase()) ||
-                        (p.payStatus ?? "").toLowerCase().includes(search.toLowerCase()) ||
-                        (p.currency ?? "").toLowerCase().includes(search.toLowerCase())
-                    )
-            ),
-        [payments, search, statusFilter]
-    );
+    // Tìm kiếm + filter status + filter purpose + sort
+    const filteredPayments = useMemo(() => {
+        let result = payments.filter(
+            (p) =>
+                (statusFilter === 'All' || p.payStatus === statusFilter) &&
+                (
+                    p.payId.toString().includes(search) ||
+                    p.userId.toString().includes(search) ||
+                    (p.purpose ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                    (p.payStatus ?? "").toLowerCase().includes(search.toLowerCase()) ||
+                    (p.currency ?? "").toLowerCase().includes(search.toLowerCase())
+                )
+        );
+
+        // Purpose filter
+        if (purposeFilter !== 'All') {
+            result = result.filter((p) => {
+                const txt = (p.purpose ?? "").toLowerCase();
+                if (purposeFilter === 'Publish') return txt.includes('publish');
+                if (purposeFilter === 'Fee') return txt.includes('fee');
+                if (purposeFilter === 'Review') return txt.includes('review');
+                if (purposeFilter === 'Other') return !txt.includes('publish') && !txt.includes('fee') && !txt.includes('review');
+                return true;
+            });
+        }
+
+        // Sort theo Date
+        if (sortDate !== 'Default') {
+            result = [...result].sort((a, b) =>
+                sortDate === 'Newest'
+                    ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                    : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+        }
+
+        // Sort theo Amount
+        if (sortAmount !== 'Default') {
+            result = [...result].sort((a, b) =>
+                sortAmount === 'Asc'
+                    ? a.amount - b.amount
+                    : b.amount - a.amount
+            );
+        }
+
+        return result;
+    }, [payments, search, statusFilter, purposeFilter, sortDate, sortAmount]);
 
     // Phân trang
     const totalPages = Math.ceil(filteredPayments.length / PAGE_SIZE);
@@ -71,19 +111,17 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
         currentPage * PAGE_SIZE
     );
 
-    // Reset về trang đầu khi search
+    // Reset trang khi điều kiện đổi
     useEffect(() => {
         setCurrentPage(1);
-    }, [search]);
+    }, [search, statusFilter, purposeFilter, sortDate, sortAmount]);
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
+    const handlePageChange = (page: number) => setCurrentPage(page);
 
     return (
         <div className="container mx-auto p-4">
             <h2 className="text-xl font-semibold mb-4">Payment List</h2>
-            <div className="flex justify-between items-center mb-4 gap-4">
+            <div className="flex flex-wrap gap-4 items-center mb-4">
                 <input
                     type="text"
                     placeholder="Search payments..."
@@ -101,7 +139,43 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                     <option value="Cancelled">Cancelled</option>
                     <option value="Completed">Completed</option>
                 </select>
+
+                {/* Purpose Filter */}
+                <select
+                    value={purposeFilter}
+                    onChange={e => setPurposeFilter(e.target.value as 'All' | 'Publish' | 'Fee' | 'Review' | 'Other')}
+                    className="border px-3 py-2 rounded"
+                >
+                    <option value="All">All Purpose</option>
+                    <option value="Publish">Publish</option>
+                    <option value="Fee">Fee</option>
+                    <option value="Review">Review</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                {/* Sort theo Date */}
+                <select
+                    value={sortDate}
+                    onChange={e => setSortDate(e.target.value as 'Default' | 'Newest' | 'Oldest')}
+                    className="border px-3 py-2 rounded"
+                >
+                    <option value="Default">Sort by Date</option>
+                    <option value="Newest">Newest First</option>
+                    <option value="Oldest">Oldest First</option>
+                </select>
+
+                {/* Sort theo Amount */}
+                <select
+                    value={sortAmount}
+                    onChange={e => setSortAmount(e.target.value as 'Default' | 'Asc' | 'Desc')}
+                    className="border px-3 py-2 rounded"
+                >
+                    <option value="Default">Sort by Amount</option>
+                    <option value="Asc">Amount Low → High</option>
+                    <option value="Desc">Amount High → Low</option>
+                </select>
             </div>
+
             <div className="bg-white rounded shadow overflow-x-auto">
                 <Table className="min-w-full">
                     <TableHeader className="border-b border-gray-100">
@@ -124,20 +198,21 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                                 <TableCell className="px-5 py-4 text-start">{p.currency}</TableCell>
                                 <TableCell className="px-5 py-4 text-center">
                                     <span
-                                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColor(
-                                            p.payStatus
-                                        )}`}
+                                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${statusColor(p.payStatus)}`}
                                     >
                                         {p.payStatus}
                                     </span>
                                 </TableCell>
                                 <TableCell className="px-5 py-4 text-start">{p.purpose}</TableCell>
-                                <TableCell className="px-5 py-4 text-start">{p.createdAt}</TableCell>
+                                <TableCell className="px-5 py-4 text-start">
+                                    {p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : ""}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </div>
+
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex justify-center mt-6 gap-2">
@@ -145,10 +220,7 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                         <button
                             key={i}
                             onClick={() => handlePageChange(i + 1)}
-                            className={`px-3 py-1 rounded border ${currentPage === i + 1
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-blue-600"
-                                }`}
+                            className={`px-3 py-1 rounded border ${currentPage === i + 1 ? "bg-blue-600 text-white" : "bg-white text-blue-600"}`}
                         >
                             {i + 1}
                         </button>
