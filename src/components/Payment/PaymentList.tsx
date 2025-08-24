@@ -7,9 +7,13 @@ import {
     TableCell,
 } from "../ui/table";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 interface Payment {
     payId: number;
     userId: number;
+    userName: string;
     conferenceId: number;
     regId: number | null;
     amount: number;
@@ -47,17 +51,17 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
     const [statusFilter, setStatusFilter] =
         useState<'All' | 'Pending' | 'Cancelled' | 'Completed'>('All');
 
-    // GIỮ NGUYÊN: sort Date + Amount
+    // sort Date + Amount
     const [sortDate, setSortDate] = useState<'Default' | 'Newest' | 'Oldest'>('Default');
     const [sortAmount, setSortAmount] = useState<'Default' | 'Asc' | 'Desc'>('Default');
 
-    // GIỮ purpose filter
+    // purpose filter
     const [purposeFilter, setPurposeFilter] =
         useState<'All' | 'Publish' | 'Fee' | 'Review' | 'Other'>('All');
 
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Tìm kiếm + filter status + filter purpose + sort
+    // filter + sort
     const filteredPayments = useMemo(() => {
         let result = payments.filter(
             (p) =>
@@ -111,12 +115,32 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
         currentPage * PAGE_SIZE
     );
 
-    // Reset trang khi điều kiện đổi
+    // Reset trang khi filter/sort đổi
     useEffect(() => {
         setCurrentPage(1);
     }, [search, statusFilter, purposeFilter, sortDate, sortAmount]);
 
     const handlePageChange = (page: number) => setCurrentPage(page);
+
+    // === Export Excel ===
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(filteredPayments.map(p => ({
+            ID: p.payId,
+            User: p.userName,
+            Amount: p.amount,
+            Currency: p.currency,
+            Status: p.payStatus,
+            Purpose: p.purpose,
+            "Created At": p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : ""
+        })));
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Payments");
+
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "payments.xlsx");
+    };
 
     return (
         <div className="container mx-auto p-4">
@@ -174,6 +198,14 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                     <option value="Asc">Amount Low → High</option>
                     <option value="Desc">Amount High → Low</option>
                 </select>
+
+                {/* Nút Export Excel */}
+                <button
+                    onClick={exportToExcel}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-green-700"
+                >
+                    Export Excel
+                </button>
             </div>
 
             <div className="bg-white rounded shadow overflow-x-auto">
@@ -193,7 +225,7 @@ const PaymentList: React.FC<PaymentListProps> = ({ payments }) => {
                         {pagedPayments.map((p) => (
                             <TableRow key={p.payId}>
                                 <TableCell className="px-5 py-4 text-start">{p.payId}</TableCell>
-                                <TableCell className="px-5 py-4 text-start">{p.userId}</TableCell>
+                                <TableCell className="px-5 py-4 text-start">{p.userName}</TableCell>
                                 <TableCell className="px-5 py-4 text-start">{p.amount}</TableCell>
                                 <TableCell className="px-5 py-4 text-start">{p.currency}</TableCell>
                                 <TableCell className="px-5 py-4 text-center">

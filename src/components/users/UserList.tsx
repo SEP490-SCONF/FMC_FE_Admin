@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '../ui/table/index';
 import UserService, { User } from '../../service/UserService';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const PAGE_SIZE = 7;
 
@@ -15,11 +17,11 @@ const UserListing: React.FC = () => {
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
-    // ✅ THÊM MỚI: filter status & role
+    // ✅ filter status & role
     const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive'>('All');
     const [roleFilter, setRoleFilter] = useState<'All' | 'Admin' | 'Member'>('All');
 
-    // Fetch users từ UserService
+    // Fetch users
     const fetchUsers = async () => {
         try {
             const data = await UserService.getAll();
@@ -68,7 +70,26 @@ const UserListing: React.FC = () => {
         }
     };
 
-    // Tìm kiếm + filter (THÊM status & role)
+    // Export Excel
+    const handleExportExcel = () => {
+        const exportData = users.map(user => ({
+            "User Name": user.name,
+            "Email": user.email,
+            "Role": user.roleName,
+            "Created At": user.createdAt,
+            "Status": user.status ? "Active" : "Inactive",
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, `UserList_${new Date().toISOString().split("T")[0]}.xlsx`);
+    };
+
+    // Tìm kiếm + filter
     const filteredUsers = useMemo(() => {
         return users.filter((user) => {
             const matchesSearch =
@@ -109,14 +130,22 @@ const UserListing: React.FC = () => {
         <div className="container mx-auto p-4">
             <h2 className="text-xl font-semibold mb-4">User List</h2>
 
-            {/* KHỐI CONTROL: giữ nút Add User, thêm 2 filter vào cùng cụm với search */}
+            {/* Control */}
             <div className="flex justify-between items-center mb-4">
-                <button
-                    onClick={() => setIsPopupOpen(true)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                    Add User
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setIsPopupOpen(true)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                        Add User
+                    </button>
+                    <button
+                        onClick={handleExportExcel}
+                        className="px-4 py-2 bg-green-500 text-white rounded"
+                    >
+                        Export Excel
+                    </button>
+                </div>
 
                 <div className="flex items-center gap-2">
                     <input
@@ -127,7 +156,7 @@ const UserListing: React.FC = () => {
                         className="border px-3 py-2 rounded w-64"
                     />
 
-                    {/* ✅ Filter Status */}
+                    {/* Filter Status */}
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Inactive')}
@@ -138,7 +167,7 @@ const UserListing: React.FC = () => {
                         <option value="Inactive">Inactive</option>
                     </select>
 
-                    {/* ✅ Filter Role */}
+                    {/* Filter Role */}
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value as 'All' | 'Admin' | 'Member')}
