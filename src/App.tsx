@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -31,12 +31,13 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+          {/* Redirect root to /signin */}
+          <Route path="/" element={<Navigate to="/signin" replace />} />
 
-          <Route path="/signin" element={<SignIn />} />
+          <Route index path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-            <Route index element={<Home />} />
             <Route index path="/home" element={<Home />} />
 
             {/* Others Page */}
