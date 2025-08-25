@@ -3,6 +3,7 @@ import { apiService } from "./ApiService";
 export interface Payment {
     payId: number;
     userId: number;
+    userName: string;
     conferenceId: number;
     regId: number | null;
     amount: number;
