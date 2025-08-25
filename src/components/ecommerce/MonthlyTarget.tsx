@@ -62,7 +62,7 @@ export default function MonthlyTarget() {
       ? currentMonthRevenue > 0
         ? 100
         : 0
-      : (currentMonthRevenue / lastMonthRevenue) * 100;
+      : ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100; // Sửa lại công thức cho đúng ý nghĩa tăng trưởng
   const series = [parseFloat(percent.toFixed(2))];
 
   const options: ApexOptions = {
