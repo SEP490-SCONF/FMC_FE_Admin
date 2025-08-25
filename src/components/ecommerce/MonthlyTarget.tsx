@@ -64,8 +64,10 @@ export default function MonthlyTarget() {
         : 0
       : (currentMonthRevenue / lastMonthRevenue) * 100;
 
-  // Giới hạn giá trị truyền vào chart từ 0 đến 100
-  const chartSeries = [chartValue < 0 ? 0 : chartValue > 100 ? 100 : chartValue];
+  // Giới hạn giá trị truyền vào chart: fullfill nếu > 100%, về 0% nếu âm
+  const chartSeries = [
+    chartValue <= 0 ? 0 : chartValue >= 100 ? 100 : chartValue
+  ];
 
   const options: ApexOptions = {
     colors: ["#465FFF"],
