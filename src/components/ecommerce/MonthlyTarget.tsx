@@ -19,23 +19,26 @@ export default function MonthlyTarget() {
       let lastTotal = 0;
 
       payments.forEach((p) => {
-        const date = new Date(p.createdAt);
-        if (
-          date.getFullYear() === currentYear &&
-          date.getMonth() === currentMonth
-        ) {
-          currentTotal += p.amount;
-        } else if (
-          date.getFullYear() === currentYear &&
-          date.getMonth() === currentMonth - 1
-        ) {
-          lastTotal += p.amount;
-        } else if (
-          currentMonth === 0 &&
-          date.getFullYear() === currentYear - 1 &&
-          date.getMonth() === 11
-        ) {
-          lastTotal += p.amount;
+        // Chỉ lấy payment đã hoàn thành và có paidAt
+        if (p.payStatus === "Completed" && p.paidAt) {
+          const date = new Date(p.paidAt);
+          if (
+            date.getFullYear() === currentYear &&
+            date.getMonth() === currentMonth
+          ) {
+            currentTotal += p.amount;
+          } else if (
+            date.getFullYear() === currentYear &&
+            date.getMonth() === currentMonth - 1
+          ) {
+            lastTotal += p.amount;
+          } else if (
+            currentMonth === 0 &&
+            date.getFullYear() === currentYear - 1 &&
+            date.getMonth() === 11
+          ) {
+            lastTotal += p.amount;
+          }
         }
       });
 
@@ -94,7 +97,6 @@ export default function MonthlyTarget() {
     stroke: { lineCap: "round" },
     labels: ["% of last month"],
   };
-
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
