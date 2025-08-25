@@ -18,8 +18,10 @@ export default function MonthlySalesChart() {
       // Tính tổng amount theo từng tháng
       const monthly = Array(12).fill(0);
       payments.forEach((p) => {
-        const month = new Date(p.createdAt).getMonth(); // 0-11
-        monthly[month] += p.amount;
+        if (p.paidAt) {
+          const month = new Date(p.paidAt).getMonth(); // 0-11
+          monthly[month] += p.amount;
+        }
       });
       setMonthlyData(monthly);
     }
