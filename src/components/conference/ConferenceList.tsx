@@ -65,8 +65,8 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                 specificTitle,
             });
             if (
-                res === "Người dùng đã được gán vai trò này trong hội thảo." ||
-                res?.data === "Người dùng đã được gán vai trò này trong hội thảo."
+                res === "The user has been assigned this role in the conference." ||
+                res?.data === "The user has been assigned this role in the conference."
             ) {
                 setMessage("This user has already been assigned this role in the conference.");
             } else {
@@ -182,7 +182,11 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                         className="bg-white rounded-xl shadow p-4 flex flex-col relative"
                     >
                         <img
-                            src={conf.bannerUrl || "/no-image.png"}
+                            src={
+                                conf.bannerUrl && conf.bannerUrl.trim()
+                                    ? conf.bannerUrl
+                                    : "/FPT_logo_2010.svg.png"
+                            }
                             alt={conf.title || "No title"}
                             className="h-40 w-full object-cover rounded-lg mb-4"
                         />

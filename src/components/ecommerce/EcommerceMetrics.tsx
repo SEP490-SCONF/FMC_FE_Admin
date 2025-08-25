@@ -37,8 +37,8 @@ export default function EcommerceMetrics() {
       let completedThisMonth = 0;
       let completedPrevMonth = 0;
       payments.forEach(p => {
-        if (p.payStatus === "Completed") {
-          const date = new Date(p.createdAt);
+        if (p.payStatus === "Completed" && p.paidAt) {
+          const date = new Date(p.paidAt);
           if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
             completedThisMonth++;
           } else if (

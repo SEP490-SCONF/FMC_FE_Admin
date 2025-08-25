@@ -49,9 +49,21 @@ const CreateConfInput: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
+        // Trim khoảng trắng và dấu xuống dòng ở đầu/cuối
+        const trimmedTitle = form.Title.replace(/^\s+|\s+$/g, "").replace(/^\n+|\n+$/g, "");
+
+        // Bắt lỗi nếu Title rỗng sau khi trim
+        if (!trimmedTitle) {
+            setPopup({ show: true, message: "Title cannot be empty!", type: "error" });
+            setLoading(false);
+            return;
+        }
+
         try {
             await createConference({
                 ...form,
+                Title: trimmedTitle,
                 CreatedBy: user?.userId ?? 0,
             });
 
@@ -76,6 +88,11 @@ const CreateConfInput: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [popup.show]);
+
+    // Lấy ngày và giờ hiện tại theo định dạng yyyy-MM-ddTHH:mm
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const todayDatetimeLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
     return (
         <div className="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto relative">
@@ -104,6 +121,7 @@ const CreateConfInput: React.FC = () => {
                         onChange={handleChange}
                         className="w-full border rounded px-3 py-2"
                         required
+                        min={todayDatetimeLocal}
                     />
                 </div>
 
@@ -117,11 +135,12 @@ const CreateConfInput: React.FC = () => {
                         onChange={handleChange}
                         className="w-full border rounded px-3 py-2"
                         required
+                        min={form.StartDate || todayDatetimeLocal}
                     />
                 </div>
 
                 {/* Created By (hidden input, only displays information) */}
-                <div>
+                {/* <div>
                     <Label htmlFor="CreatedBy">Created By</Label>
                     <Input
                         type="text"
@@ -129,20 +148,18 @@ const CreateConfInput: React.FC = () => {
                         value={user?.userId ?? ""}
                         disabled
                     />
-                </div>
+                </div> */}
 
                 {/* Status */}
                 <div>
                     <Label htmlFor="Status">Status</Label>
-                    <select
+                    <Input
                         name="Status"
-                        value={form.Status ? "true" : "false"}
+                        value={"false"}
                         onChange={handleChange}
                         className="w-full border rounded px-3 py-2"
-                    >
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
+                        disabled
+                    />
                 </div>
 
                 <div className="flex gap-4 mt-4">
