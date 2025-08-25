@@ -62,8 +62,11 @@ export default function MonthlyTarget() {
       ? currentMonthRevenue > 0
         ? 100
         : 0
-      : ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100; // Sửa lại công thức cho đúng ý nghĩa tăng trưởng
-  const series = [parseFloat(percent.toFixed(2))];
+      : ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+
+  // Giới hạn giá trị truyền vào chart từ 0 đến 100
+  const chartValue = percent < 0 ? 0 : percent > 100 ? 100 : percent;
+  const series = [parseFloat(chartValue.toFixed(2))];
 
   const options: ApexOptions = {
     colors: ["#465FFF"],
