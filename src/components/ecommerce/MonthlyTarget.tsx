@@ -56,17 +56,16 @@ export default function MonthlyTarget() {
     fetchPayments();
   }, []);
 
-  // Chart value: percent of last month
-  const percent =
+  // Chart value: phần trăm doanh thu tháng này so với tháng trước
+  const chartValue =
     lastMonthRevenue === 0
       ? currentMonthRevenue > 0
         ? 100
         : 0
-      : ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100;
+      : (currentMonthRevenue / lastMonthRevenue) * 100;
 
   // Giới hạn giá trị truyền vào chart từ 0 đến 100
-  const chartValue = percent < 0 ? 0 : percent > 100 ? 100 : percent;
-  const series = [parseFloat(chartValue.toFixed(2))];
+  const chartSeries = [chartValue < 0 ? 0 : chartValue > 100 ? 100 : chartValue];
 
   const options: ApexOptions = {
     colors: ["#465FFF"],
@@ -114,7 +113,7 @@ export default function MonthlyTarget() {
         </div>
         <div className="relative ">
           <div className="max-h-[330px]" id="chartDarkStyle">
-            <Chart options={options} series={series} type="radialBar" height={330} />
+            <Chart options={options} series={chartSeries} type="radialBar" height={330} />
           </div>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
