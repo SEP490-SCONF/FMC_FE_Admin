@@ -13,8 +13,10 @@ export default function StatisticsChart() {
       const revenue = Array(12).fill(0);  // Tổng amount mỗi tháng
 
       payments.forEach((p) => {
-        const month = new Date(p.createdAt).getMonth(); // 0-11
-        revenue[month] += p.amount;
+        if (p.paidAt) {
+          const month = new Date(p.paidAt).getMonth(); // 0-11
+          revenue[month] += p.amount;
+        }
       });
 
       setRevenueData(revenue);
