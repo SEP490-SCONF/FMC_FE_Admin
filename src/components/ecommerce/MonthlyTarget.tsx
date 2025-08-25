@@ -57,6 +57,7 @@ export default function MonthlyTarget() {
   }, []);
 
   // Chart value: phần trăm doanh thu tháng này so với tháng trước
+  // Biến chartValue tính toán tỷ lệ doanh thu tháng này so với tháng trước
   const chartValue =
     lastMonthRevenue === 0
       ? currentMonthRevenue > 0
@@ -66,7 +67,7 @@ export default function MonthlyTarget() {
 
   // Giới hạn giá trị truyền vào chart: fullfill nếu > 100%, về 0% nếu âm
   const chartSeries = [
-    chartValue <= 0 ? 0 : chartValue >= 100 ? 100 : chartValue
+    chartValue > 100 ? 100 : chartValue <= 0 ? 0 : chartValue
   ];
 
   const options: ApexOptions = {
