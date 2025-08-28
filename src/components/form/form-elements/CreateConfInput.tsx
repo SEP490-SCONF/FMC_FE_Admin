@@ -10,7 +10,7 @@ const initialState: Omit<ConferencePayloadExtended, "CreatedBy"> = {
     Title: "",
     StartDate: "",
     EndDate: "",
-    Status: true,
+    Status: false,
 };
 
 const CreateConfInput: React.FC = () => {
