@@ -191,7 +191,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                             className="h-40 w-full object-cover rounded-lg mb-4"
                         />
                         <h2 className="text-lg font-bold mb-2">{conf.title || "No title"}</h2>
-                        <p className="text-gray-600 mb-2">{conf.description || "No description"}</p>
+                        <p className="text-gray-600 mb-2 overflow-y-auto" style={{ maxHeight: "100px" }}>{conf.description || "No description"}</p>
                         <div className="text-sm text-gray-500 mb-1">
                             <span className="font-semibold">Location:</span> {conf.location || "N/A"}
                         </div>

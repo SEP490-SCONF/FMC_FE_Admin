@@ -28,7 +28,16 @@ const Calendar: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const { isOpen, openModal, closeModal } = useModal();
 
-  const colorList = ["Primary", "Success", "Danger", "Warning", "Info", "Secondary"];
+  const colorList = [
+    "#A5D8FF", // pastel blue
+    "#B2F2BB", // pastel green
+    "#FFC9C9", // pastel red/pink
+    "#FFD8A8", // pastel orange
+    "#D0BFFF", // pastel purple
+    "#FFDEE2", // pastel rose
+    "#FFF3BF", // pastel yellow
+    "#C5F6FA", // pastel cyan
+  ];
   function getColorByIndex(index: number) {
     return colorList[index % colorList.length];
   }
@@ -46,8 +55,10 @@ const Calendar: React.FC = () => {
           title: conf.title,
           start: conf.startDate?.split("T")[0],
           end: conf.endDate?.split("T")[0],
+          backgroundColor: getColorByIndex(idx),   // 🎨 Thêm màu nền
+          borderColor: getColorByIndex(idx),       // 🎨 Thêm viền
+          textColor: "#000000",                  // 🎨 Cho chữ sáng dễ đọc
           extendedProps: {
-            calendar: getColorByIndex(idx),
             description: conf.description,
             location: conf.location,
             bannerUrl: conf.bannerUrl,
@@ -190,13 +201,15 @@ const Calendar: React.FC = () => {
 };
 
 const renderEventContent = (eventInfo: any) => {
-  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
   return (
     <div
-      className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm`}
+      className="flex fc-event-main p-1 rounded-sm"
+      style={{
+        backgroundColor: eventInfo.event.backgroundColor,
+        color: eventInfo.event.textColor,
+        border: `1px solid ${eventInfo.event.borderColor}`,
+      }}
     >
-      <div className="fc-daygrid-event-dot"></div>
-      {/* <div className="fc-event-time">{eventInfo.timeText}</div> */}
       <div className="fc-event-title">{eventInfo.event.title}</div>
     </div>
   );

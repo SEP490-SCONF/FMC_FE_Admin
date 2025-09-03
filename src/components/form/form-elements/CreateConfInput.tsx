@@ -151,7 +151,7 @@ const CreateConfInput: React.FC = () => {
                 </div> */}
 
                 {/* Status */}
-                <div>
+                {/* <div>
                     <Label htmlFor="Status">Status</Label>
                     <Input
                         name="Status"
@@ -160,7 +160,7 @@ const CreateConfInput: React.FC = () => {
                         className="w-full border rounded px-3 py-2"
                         disabled
                     />
-                </div>
+                </div> */}
 
                 <div className="flex gap-4 mt-4">
                     <button
