@@ -29,14 +29,14 @@ const Calendar: React.FC = () => {
   const { isOpen, openModal, closeModal } = useModal();
 
   const colorList = [
-    "#A5D8FF", // pastel blue
-    "#B2F2BB", // pastel green
-    "#FFC9C9", // pastel red/pink
-    "#FFD8A8", // pastel orange
-    "#D0BFFF", // pastel purple
-    "#FFDEE2", // pastel rose
-    "#FFF3BF", // pastel yellow
-    "#C5F6FA", // pastel cyan
+    "#D6EBFF", // lighter pastel blue
+    "#DFFBE5", // lighter pastel green
+    "#FFE5E5", // lighter pastel red/pink
+    "#FFEFD6", // lighter pastel orange
+    "#E6D9FF", // lighter pastel purple
+    "#FFEFF2", // lighter pastel rose
+    "#FFF9E0", // lighter pastel yellow
+    "#E0FAFC", // lighter pastel cyan
   ];
   function getColorByIndex(index: number) {
     return colorList[index % colorList.length];
@@ -130,7 +130,7 @@ const Calendar: React.FC = () => {
         <Modal
           isOpen={isOpen}
           onClose={closeModal}
-          className="max-w-[700px] p-6 lg:p-10"
+          className="max-w-[700px] p-6 lg:p-10 max-h-[80vh] overflow-y-auto"
         >
           <div className="flex flex-col px-2 overflow-y-auto custom-scrollbar">
             <div>

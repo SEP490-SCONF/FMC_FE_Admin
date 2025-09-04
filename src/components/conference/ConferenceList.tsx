@@ -30,7 +30,7 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
 
     // 🆕 thay sortOrder + showUpcomingOnly bằng 1 filter duy nhất
     const [filterOption, setFilterOption] = useState<
-        "default" | "newest" | "oldest" | "upcoming" | "ongoing"
+        "default" | "upcoming" | "ongoing"
     >("default");
 
     const handleAddOrganizer = (conferenceId: number) => {
@@ -102,21 +102,6 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                         new Date(conf.endDate) >= now
                 );
                 break;
-            case "newest":
-                list = [...list].sort((a, b) => {
-                    if (!a.startDate) return 1;   // a không có ngày → xuống cuối
-                    if (!b.startDate) return -1;  // b không có ngày → xuống cuối
-                    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-                });
-                break;
-
-            case "oldest":
-                list = [...list].sort((a, b) => {
-                    if (!a.startDate) return 1;   // không có ngày → xuống cuối
-                    if (!b.startDate) return -1;
-                    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-                });
-                break;
             default:
                 break;
         }
@@ -158,8 +143,6 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                         setFilterOption(
                             e.target.value as
                             | "default"
-                            | "newest"
-                            | "oldest"
                             | "upcoming"
                             | "ongoing"
                         )
@@ -167,8 +150,8 @@ const ConferenceList: React.FC<ConferenceListProps> = ({ conferences }) => {
                     className="border px-3 py-2 rounded"
                 >
                     <option value="default">Default</option>
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
+                    {/* <option value="newest">Newest</option> */}
+                    {/* <option value="oldest">Oldest</option> */}
                     <option value="upcoming">Upcoming</option>
                     <option value="ongoing">Ongoing</option>
                 </select>
